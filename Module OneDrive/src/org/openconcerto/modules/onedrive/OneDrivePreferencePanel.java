@@ -54,6 +54,8 @@ public class OneDrivePreferencePanel extends DefaultLocalPreferencePanel {
     public static final String PROP_SHAREPOINT_URL = "sharepointURL";
     public static final String PROP_ACCOUNT_CLASSIC = "accountClassic";
     public static final String PROP_ACCOUNT_BUSINESS = "accountBusiness";
+    public static final String PROP_NOTIFICATION_ACTIVE = "showNotifications";
+    public static final String PROP_NOTIFICATION_TIME = "notificationTime";
 	public static final String ONEDRIVE_PROPERTIES = "onedrive.properties";
 	
 	final JTextField textClientID = new JTextField();
@@ -65,6 +67,7 @@ public class OneDrivePreferencePanel extends DefaultLocalPreferencePanel {
     final JRadioButton radioOneDriveClassic = new JRadioButton("OneDrive Classique");
     final JRadioButton radioOneDriveBusiness = new JRadioButton("OneDrive Business");
     final JTextField textSharepointResourceURL = new JTextField();
+    final JCheckBox checkNotifications = new JCheckBox("Activer les notifications lors de l'envoi");
 
 	public OneDrivePreferencePanel() {
         super("OneDrive", ONEDRIVE_PROPERTIES);
@@ -278,6 +281,10 @@ public class OneDrivePreferencePanel extends DefaultLocalPreferencePanel {
         c.gridy++;
         this.add(checkShowMenu, c);
         
+        c.gridx = 0;
+        c.gridy++;
+        this.add(checkNotifications, c);
+        
         final JButton bTest = new JButton("Tester les paramètres");
         bTest.setOpaque(false);
         c.fill = GridBagConstraints.NONE;
@@ -358,6 +365,7 @@ public class OneDrivePreferencePanel extends DefaultLocalPreferencePanel {
         radioOneDriveClassic.setSelected(properties.getProperty(PROP_ACCOUNT_CLASSIC, "false").equals("true"));
         radioOneDriveBusiness.setSelected(properties.getProperty(PROP_ACCOUNT_BUSINESS, "false").equals("true"));
         textSharepointResourceURL.setText(properties.getProperty(PROP_SHAREPOINT_URL, ""));
+        checkNotifications.setSelected(properties.getProperty(PROP_NOTIFICATION_ACTIVE, "false").equals("true"));
 	}
 	
 	
@@ -371,6 +379,7 @@ public class OneDrivePreferencePanel extends DefaultLocalPreferencePanel {
         properties.setProperty(PROP_ACCOUNT_CLASSIC, String.valueOf(this.radioOneDriveClassic.isSelected()));
         properties.setProperty(PROP_ACCOUNT_BUSINESS, String.valueOf(this.radioOneDriveBusiness.isSelected()));
         properties.setProperty(PROP_SHAREPOINT_URL, textSharepointResourceURL.getText());
+        properties.setProperty(PROP_NOTIFICATION_ACTIVE, String.valueOf(this.checkNotifications.isSelected()));
         super.storeValues();
     }
 
@@ -385,6 +394,7 @@ public class OneDrivePreferencePanel extends DefaultLocalPreferencePanel {
         radioOneDriveClassic.setSelected(true);
         radioOneDriveBusiness.setSelected(false);
         textSharepointResourceURL.setText("");
+        checkNotifications.setSelected(true);
     }
 
     public static Properties getProperties() throws IOException {

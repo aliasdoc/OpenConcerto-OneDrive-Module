@@ -1,5 +1,6 @@
 package org.openconcerto.modules.onedrive;
 
+import java.awt.Image;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -12,6 +13,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import javax.swing.ImageIcon;
+
 import org.openconcerto.erp.storage.StorageEngine;
 
 import de.tuberlin.onedrivesdk.OneDriveException;
@@ -21,6 +24,8 @@ import de.tuberlin.onedrivesdk.common.OneDriveScope;
 import de.tuberlin.onedrivesdk.file.OneFile;
 import de.tuberlin.onedrivesdk.folder.OneFolder;
 import de.tuberlin.onedrivesdk.uploadFile.OneUploadFile;
+import ds.desktop.notify.DesktopNotify;
+import ds.desktop.notify.NotifyTheme;
 
 
 public class OneDriveStorageEngine implements StorageEngine {
@@ -81,36 +86,15 @@ public class OneDriveStorageEngine implements StorageEngine {
             throw new IllegalStateException("L'authentification est nécessaire avant de pouvoir sauvegarder le document");
         }
 		ExecutorService executor = Executors.newFixedThreadPool(5);
+		final Properties props = OneDrivePreferencePanel.getProperties();
+		Boolean notify = props.getProperty(OneDrivePreferencePanel.PROP_NOTIFICATION_ACTIVE, "true").equals("true");
+		if (notify) {
+        	DesktopNotify.setDefaultTheme(NotifyTheme.Light);
+            DesktopNotify.showDesktopMessage("OneDrive", "Envoi du fichier "+ title + " sur OneDrive", 
+    				DesktopNotify.INFORMATION, new ImageIcon(OneDrivePreferencePanel.class.getResource("onedrive-icon.png")).getImage(),
+    				null, 5000);
+        }
 		
-		//String path = remotePath.replace("\\","/") + "/" + title;
-		//System.out.println("Uploading file with path: " + path);
-/*        try {
-        	remoteFolder = sdk.getFolderByPath(path);
-        } catch (OneDriveException e) {
-            try {
-            	System.out.println("Folder not found, trying to create: OpenConcerto/" + path);
-				remoteFolder = sdk.getRootFolder().createFolder(path + ":/");
-			} catch (OneDriveException e1) {
-				// TODO Auto-generated catch block
-				System.out.println("Error whent trying to create path: " + path);
-				System.out.println(e.getMessage());
-				e1.printStackTrace();
-			}
-        }*/
-		
-/*		OneFolder oc = null;
-        try {
-        	oc = sdk.getFolderByPath("OpenConcerto");
-        } catch (OneDriveException e) {
-        	System.out.println(e.getMessage());
-            try {
-				oc = sdk.getRootFolder().createFolder("OpenConcerto");
-			} catch (OneDriveException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-        }*/
-        
         OneFolder oc = null;
         
         try {
@@ -119,7 +103,6 @@ public class OneDriveStorageEngine implements StorageEngine {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-        
         
         
         OneUploadFile upload = null;
@@ -134,14 +117,33 @@ public class OneDriveStorageEngine implements StorageEngine {
 			throw new IllegalStateException("Impossible de créer le fichier à uploader.");
 		}
         Future<OneFile> futureUpload = executor.submit(upload);
+        
         try {
 			System.out.println(futureUpload.get().getCreatedDateTime());
+			
+			if (notify) {
+				DesktopNotify.showDesktopMessage("OneDrive", "Le fichier "+ title + " a été correctement envoyé sur OneDrive", 
+						DesktopNotify.SUCCESS, new ImageIcon(OneDrivePreferencePanel.class.getResource("onedrive-icon.png")).getImage(),
+						null, 5000);
+	        }
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			
+			if (notify) {
+				DesktopNotify.showDesktopMessage("OneDrive", "Le télechargement du fichier "+ title + " sur OneDrive à échoué", 
+						DesktopNotify.FAIL, new ImageIcon(OneDrivePreferencePanel.class.getResource("onedrive-icon.png")).getImage(),
+						null, 5000);
+	        }
 		} catch (ExecutionException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			
+			if (notify) {
+				DesktopNotify.showDesktopMessage("OneDrive", "Le télechargement du fichier "+ title + " sur OneDrive à échoué", 
+						DesktopNotify.FAIL, new ImageIcon(OneDrivePreferencePanel.class.getResource("onedrive-icon.png")).getImage(),
+						null, 5000);
+	        }
 		}
     }
 	
