@@ -69,7 +69,7 @@ public class OneDriveStorageEngine implements StorageEngine {
     public void store(InputStream inStream, String remotePath, String title, boolean synchronous) throws IOException {
 		System.out.println("stream remote path:" + remotePath);
 		
-		File file = new File(title);
+		File file = new File(System.getProperty("java.io.tmpdir") + title);
 		final FileOutputStream fOut = new FileOutputStream(file);
 		byte[] buffer = new byte[inStream.available()];
 		inStream.read(buffer);
